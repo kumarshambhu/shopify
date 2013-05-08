@@ -1,7 +1,5 @@
 package com.ecommerce.app.shopify.filter;
 
-import com.ecommerce.app.shopify.dao.DaoImpl;
-import com.ecommerce.app.shopify.util.Const;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +12,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @WebFilter(filterName = "Authenticator", urlPatterns = {"/*"})
@@ -33,10 +30,11 @@ public class Authenticator implements Filter {
             HttpServletRequest req = (HttpServletRequest) request;
 
             //Authentication & Authorization.
-            if (req.getRequestURI().contains("/contact")) {
+            if (req.getRequestURI().contains("/login") && req.getParameter("action") != null && req.getParameter("action").equals("Sign Up")) {
                 //Do nothing.
-            } else if (req.getRequestURI().contains("/home") || req.getRequestURI().contains("/order")) {
-
+            } else if (req.getRequestURI().contains("/login") && req.getParameter("action") != null && req.getParameter("action").equals("Register")) {
+                //Do nothing.
+            } else if (req.getRequestURI().contains("/home") || req.getRequestURI().contains("/order") || req.getRequestURI().contains("/product")) {
                 //Dont create a new session here if it doesnt exist.
                 HttpSession session = req.getSession(false);
                 RequestDispatcher dispatcher;
@@ -51,7 +49,7 @@ public class Authenticator implements Filter {
                         return;
                     }
                 } else {
-                    request.setAttribute("fail_msg", "Session timed out!");
+                    request.setAttribute("flash_msg", "Session timed out!");
                     dispatcher = request.getRequestDispatcher("/login");
                     dispatcher.forward(request, response);
                     return;

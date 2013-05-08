@@ -1,6 +1,5 @@
 package com.ecommerce.app.shopify.dao;
 
-import com.ecommerce.app.shopify.domain.Authenticate;
 import com.ecommerce.app.shopify.domain.Product;
 import com.ecommerce.app.shopify.domain.Profile;
 import com.ecommerce.app.shopify.util.Const;
@@ -33,27 +32,27 @@ public enum DaoImpl {
         }
     }
 
-    public Authenticate checkLogin(String user, String pwd) throws Exception {
+    public Profile checkLogin(String user, String pwd) throws Exception {
         ResultSet resultSet = null;
-        Authenticate auth = null;
-        String query = "SELECT * FROM AUTHENTICATE where UNAME = ? and PWD = ?";
+        Profile profile = null;
+        String query = "SELECT * FROM PROFILE where UNAME = ? and PWD = ?";
         try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, user);
             pstmt.setString(2, pwd);
             resultSet = pstmt.executeQuery();
 
             while (resultSet.next()) {
-                auth = new Authenticate(resultSet);
-                return auth;
+                profile = new Profile(resultSet);
+                return profile;
             }
 
         }
-        return auth;
+        return profile;
     }
 
     public Boolean lockAccount(String uname) throws Exception {
 
-        String query = "UPDATE AUTHENTICATE SET ACC_LOCK = 1 where UNAME = ?";
+        String query = "UPDATE PROFILE SET ACC_LOCK = 1 where UNAME = ?";
         try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
             pstmt.setString(1, uname);
@@ -70,7 +69,7 @@ public enum DaoImpl {
 
     public Boolean unlockAccount(Long profileId, String verificationCode) throws Exception {
 
-        String query = "UPDATE AUTHENTICATE SET ACC_LOCK = 0 where PROFILE_ID = ? and VERIFICATION_CODE = ?";
+        String query = "UPDATE PROFILE SET ACC_LOCK = 0 where PROFILE_ID = ? and VERIFICATION_CODE = ?";
         try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
             pstmt.setLong(1, profileId);
@@ -87,7 +86,7 @@ public enum DaoImpl {
     }
 
     public Boolean saveVerficiationCode(Long profileId, String verificationCode) throws Exception {
-        String query = "UPDATE AUTHENTICATE SET VERIFICATION_CODE = ? where PROFILE_ID = ?";
+        String query = "UPDATE PROFILE SET VERIFICATION_CODE = ? where PROFILE_ID = ?";
         try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
             pstmt.setString(1, verificationCode);
@@ -223,5 +222,39 @@ public enum DaoImpl {
 
         }
         return null;
+    }
+
+    public Boolean createUser(Profile profile) throws Exception {
+        logger.log(Level.INFO, "Adding User: {0}", profile.getName());
+
+        String query = "INSERT INTO PROFILE (UNAME,PWD,VERIFICATION_CODE,ACC_LOCK,NAME,GENDER,EMAIL,ADDRESS,CITY,STATE,COUNTRY,PINCODE,MOBILE,STATUS,UROLE,CHANGE_TIME) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,DEFAULT)";
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query);) {
+            connection.setAutoCommit(false);
+
+            pstmt.setString(1, profile.getUname());
+            pstmt.setString(2, profile.getPwd());
+            pstmt.setString(3, profile.getVerificationCode());
+            pstmt.setBoolean(4, profile.getAccLock());
+
+            pstmt.setString(5, profile.getName());
+            pstmt.setString(6, profile.getGender());
+            pstmt.setString(7, profile.getEmail());
+            pstmt.setString(8, profile.getAddress());
+            pstmt.setString(9, profile.getCity());
+            pstmt.setString(10, profile.getState());
+            pstmt.setString(11, profile.getCountry());
+            pstmt.setLong(12, profile.getPincode());
+            pstmt.setLong(13, profile.getMobile());
+            pstmt.setString(14, profile.getStatus());
+            pstmt.setString(15, profile.getUrole());
+
+            Integer rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                connection.commit();
+                return true;
+            }
+
+        }
+        return false;
     }
 }

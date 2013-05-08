@@ -1,7 +1,6 @@
 package com.ecommerce.app.shopify.controller;
 
 import com.ecommerce.app.shopify.dao.DaoImpl;
-import com.ecommerce.app.shopify.domain.Authenticate;
 import com.ecommerce.app.shopify.domain.Profile;
 import com.ecommerce.app.shopify.util.Const;
 import com.ecommerce.app.shopify.util.EmailUtil;
@@ -47,6 +46,12 @@ public class LoginServlet extends HttpServlet {
                         break;
                     case "Verify":
                         verifyAccount(request, response);
+                        break;
+                    case "Sign Up":
+                        signUp(request, response);
+                        break;
+                    case "Register":
+                        register(request, response);
                         break;
                     default:
                         defaultAction(request, response);
@@ -127,32 +132,31 @@ public class LoginServlet extends HttpServlet {
             }
 
             //Authenticate the user with username and pwd combination.
-            Authenticate auth = DaoImpl.INSTANCE.checkLogin(uname, pwd);
-            if (auth != null) {
+            Profile profile = DaoImpl.INSTANCE.checkLogin(uname, pwd);
+            if (profile != null) {
 
-                if (auth.getAccLock() == Boolean.TRUE) {
+                if (profile.getAccLock() == Boolean.TRUE) {
                     //Show verification page.
                     String uuid = UUID.randomUUID().toString();
                     //Save this uuid into the DB as verification code.
-                    DaoImpl.INSTANCE.saveVerficiationCode(auth.getProfileId(), uuid);
+                    DaoImpl.INSTANCE.saveVerficiationCode(profile.getProfileId(), uuid);
                     //Mail this verification code to the user.
-                    Profile profile = DaoImpl.INSTANCE.getProfile(auth.getProfileId());
                     EmailUtil.INSTANCE.sendMail("Shopify: Verification Token", "Your one time token is: " + uuid, profile.getEmail(), null, null);
                     //Goto Verification code Page
-                    request.setAttribute("profile_id", auth.getProfileId());
+                    request.setAttribute("profile_id", profile.getProfileId());
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/verification.jsp");
                     dispatcher.forward(request, response);
 
                 } else {
-                    setSucessfulSession(session, auth.getProfileId());
+                    setSucessfulSession(session, profile.getProfileId());
                     defaultAction(request, response);
                 }
 
             } else {
                 if (accLocked == Boolean.TRUE) {
-                    request.setAttribute("fail_msg", "Invalid login credentials! This account is locked!");
+                    request.setAttribute("flash_msg", "Invalid login credentials! This account is locked!");
                 } else {
-                    request.setAttribute("fail_msg", "Invalid login credentials");
+                    request.setAttribute("flash_msg", "Invalid login credentials");
                 }
                 defaultAction(request, response);
             }
@@ -170,7 +174,7 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("uid", profileId);
         Profile profile = DaoImpl.INSTANCE.getProfile(profileId);
         session.setAttribute("user", profile.getName());
-        session.setAttribute("urole",profile.getUrole());
+        session.setAttribute("urole", profile.getUrole());
 
     }
 
@@ -208,6 +212,43 @@ public class LoginServlet extends HttpServlet {
         }
 
         defaultAction(request, response);
+
+    }
+
+    public void signUp(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //unlock
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/signup.jsp");
+        dispatcher.forward(request, response);
+
+    }
+
+    public void register(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //unlock
+
+        String uname = request.getParameter("uname");
+        String pwd = request.getParameter("pwd");
+        String name = request.getParameter("name");
+        String gender = request.getParameter("gender");
+        String email = request.getParameter("email");
+        String address = request.getParameter("address");
+        String city = request.getParameter("city");
+        String state = request.getParameter("state");
+        String country = request.getParameter("country");
+        Long pincode = Long.parseLong(request.getParameter("pincode"));
+        Long mobile = Long.parseLong(request.getParameter("mobile"));
+        String status = "ACTIVE";
+        String urole = "USER";
+
+        Profile profile = new Profile(uname, pwd, "", Boolean.TRUE, name, gender, email, address, city, state, country, pincode, mobile, status, urole);
+
+        if (DaoImpl.INSTANCE.createUser(profile) == Boolean.TRUE) {
+            request.setAttribute("flash_msg", "Profile Created Successfully. Please Login!");
+        } else {
+            request.setAttribute("flash_msg", "Profile Creation Failed! Please try again!");
+        }
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/login.jsp");
+        dispatcher.forward(request, response);
 
     }
 

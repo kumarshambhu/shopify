@@ -66,3 +66,13 @@ Git:
 git remote add origin https://<USER_NAME>@github.com/arjunsurendra04/shopify.git
 To Submit Code: git push -u origin master
 To Pull Code: git pull
+
+Download the code:
+https://github.com/arjunsurendra04/shopify/archive/master.zip
+
+1. Download.
+2. Rename shopify-master to shopify
+3. Open in netbeans. Ignore anything that says "resolve references"
+4. Build project.
+5. Click Run. It will ask you to pick server. Select tomcat server and click ok.
+6. Dont modify the code in any way. Dont modify the tomcat server setting in any way. The only thing you need to do is create the DB and run the shopify-db.sql that is all.

@@ -7,6 +7,10 @@ import java.util.Date;
 public class Profile implements java.io.Serializable {
 
     private long profileId;
+    private String uname;
+    private String pwd;
+    private String verificationCode;
+    private Boolean accLock;
     private String name;
     private String gender;
     private String email;
@@ -25,6 +29,12 @@ public class Profile implements java.io.Serializable {
 
     public Profile(ResultSet rs) throws SQLException {
         this.profileId = rs.getInt("PROFILE_ID");
+
+        this.uname = rs.getString("UNAME");
+        this.pwd = rs.getString("PWD");
+        this.verificationCode = rs.getString("VERIFICATION_CODE");
+        this.accLock = rs.getBoolean("ACC_LOCK");
+
         this.name = rs.getString("NAME");
         this.gender = rs.getString("GENDER");
         this.email = rs.getString("EMAIL");
@@ -39,8 +49,12 @@ public class Profile implements java.io.Serializable {
         this.changeTime = rs.getTimestamp("CHANGE_TIME");
     }
 
-    public Profile(long profileId, String name, String gender, String email, String address, String city, String state, String country, Long pincode, Long mobile, String status, String urole, Date changeTime) {
-        this.profileId = profileId;
+    public Profile(String uname, String pwd, String verificationCode, Boolean accLock, String name, String gender, String email, String address, String city, String state, String country, Long pincode, Long mobile, String status, String urole) {
+
+        this.uname = uname;
+        this.pwd = pwd;
+        this.verificationCode = verificationCode;
+        this.accLock = accLock;
         this.name = name;
         this.gender = gender;
         this.email = email;
@@ -52,8 +66,39 @@ public class Profile implements java.io.Serializable {
         this.mobile = mobile;
         this.status = status;
         this.urole = urole;
-        this.changeTime = changeTime;
 
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public Boolean getAccLock() {
+        return accLock;
+    }
+
+    public void setAccLock(Boolean accLock) {
+        this.accLock = accLock;
     }
 
     public long getProfileId() {
