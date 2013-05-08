@@ -62,4 +62,7 @@ Things to Read:
 4. JSP & Servlet- Detailed study online
 
 
-
+Git:
+git remote add origin https://<USER_NAME>@github.com/arjunsurendra04/shopify.git
+To Submit Code: git push -u origin master
+To Pull Code: git pull
