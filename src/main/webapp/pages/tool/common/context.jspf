@@ -1,0 +1,6 @@
+<%@ page pageEncoding="UTF-8" %>
+<script type="text/javascript">
+    var BASE_URL = "/shopify";
+    var CAPTACH_ATTEMPT_INTERVAL = "2";
+</script>
+<c:set var="BASE_URL" value="/shopify"/>

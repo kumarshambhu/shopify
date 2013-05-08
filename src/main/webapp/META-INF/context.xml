@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/shopify">
+    <Resource auth="Container" driverClassName="org.apache.derby.jdbc.ClientDriver" maxActive="10" maxIdle="4" name="jdbc/shopify_db" password="shopify_pwd" type="javax.sql.DataSource" url="jdbc:derby://localhost:1527/shopify" username="shopify_user"/>
+</Context>
