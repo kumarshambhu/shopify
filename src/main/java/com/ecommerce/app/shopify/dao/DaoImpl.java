@@ -224,9 +224,8 @@ public enum DaoImpl {
         return null;
     }
 
-    public Boolean createUser(Profile profile) throws Exception {
+    public Boolean saveProfile(Profile profile) throws Exception {
         logger.log(Level.INFO, "Adding User: {0}", profile.getName());
-
         String query = "INSERT INTO PROFILE (UNAME,PWD,VERIFICATION_CODE,ACC_LOCK,NAME,GENDER,EMAIL,ADDRESS,CITY,STATE,COUNTRY,PINCODE,MOBILE,STATUS,UROLE,CHANGE_TIME) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,DEFAULT)";
         try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query);) {
             connection.setAutoCommit(false);
@@ -235,7 +234,6 @@ public enum DaoImpl {
             pstmt.setString(2, profile.getPwd());
             pstmt.setString(3, profile.getVerificationCode());
             pstmt.setBoolean(4, profile.getAccLock());
-
             pstmt.setString(5, profile.getName());
             pstmt.setString(6, profile.getGender());
             pstmt.setString(7, profile.getEmail());
@@ -254,6 +252,37 @@ public enum DaoImpl {
                 return true;
             }
 
+        }
+        return false;
+    }
+
+    public Boolean updateProfile(Profile profile) throws Exception {
+        logger.log(Level.INFO, "Update User: {0}", profile.getName());
+
+        if (profile.getProfileId() != 0l) {
+            String query = "UPDATE PROFILE SET UNAME = ?,PWD =?,NAME=?,GENDER=?,EMAIL=?,ADDRESS=?,CITY=?,STATE=?,COUNTRY=?,PINCODE=?,MOBILE=?,STATUS=?,CHANGE_TIME=CURRENT_TIMESTAMP) where PROFILE_ID = ?";
+            try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query);) {
+                connection.setAutoCommit(false);
+
+                pstmt.setString(1, profile.getUname());
+                pstmt.setString(2, profile.getPwd());
+                pstmt.setString(3, profile.getName());
+                pstmt.setString(4, profile.getGender());
+                pstmt.setString(5, profile.getEmail());
+                pstmt.setString(6, profile.getAddress());
+                pstmt.setString(7, profile.getCity());
+                pstmt.setString(8, profile.getState());
+                pstmt.setString(9, profile.getCountry());
+                pstmt.setLong(10, profile.getPincode());
+                pstmt.setLong(11, profile.getMobile());
+                pstmt.setString(12, profile.getStatus());
+                Integer rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    connection.commit();
+                    return true;
+                }
+
+            }
         }
         return false;
     }

@@ -2,9 +2,9 @@ package com.ecommerce.app.shopify.controller;
 
 import com.ecommerce.app.shopify.dao.DaoImpl;
 import com.ecommerce.app.shopify.domain.Product;
+import com.ecommerce.app.shopify.domain.Profile;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Blob;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +38,12 @@ public class HomeServlet extends HttpServlet {
                     case "Image":
                         retrieveImage(request, response);
                         break;
+                    case "EditUser":
+                        editUser(request, response);
+                        break;
+                    case "Update Profile":
+                        updateUser(request, response);
+                        break;
                     default:
                         defaultAction(request, response);
                         break;
@@ -51,6 +57,55 @@ public class HomeServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
             dispatcher.forward(request, response);
         }
+
+    }
+
+    public void editUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //unlock
+        if (request.getParameter("profileId") != null) {
+            Long profileId = Long.parseLong(request.getParameter("profileId"));
+            Profile profile = DaoImpl.INSTANCE.getProfile(profileId);
+            request.setAttribute("profile", profile);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile-add.jsp");
+            dispatcher.forward(request, response);
+        } else {
+            request.setAttribute("error", "No profile Id provided!");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+        }
+
+
+    }
+
+    public void updateUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Long profileId = null;
+        if (!request.getParameter("profileId").equals("")) {
+            profileId = Long.parseLong(request.getParameter("profileId"));
+        }
+        String uname = request.getParameter("uname");
+        String pwd = request.getParameter("pwd");
+        String name = request.getParameter("name");
+        String gender = request.getParameter("gender");
+        String email = request.getParameter("email");
+        String address = request.getParameter("address");
+        String city = request.getParameter("city");
+        String state = request.getParameter("state");
+        String country = request.getParameter("country");
+        Long pincode = Long.parseLong(request.getParameter("pincode"));
+        Long mobile = Long.parseLong(request.getParameter("mobile"));
+        String status = "ACTIVE";
+
+        Profile profile = new Profile(uname, pwd, null, Boolean.TRUE, name, gender, email, address, city, state, country, pincode, mobile, status, null);
+        if (profileId != null) {
+            profile.setProfileId(profileId);
+        }
+        if (DaoImpl.INSTANCE.updateProfile(profile) == Boolean.FALSE) {
+            logger.log(Level.INFO, "Profile updated successfuly : {0}", profile.getName());
+        } else {
+            logger.log(Level.INFO, "Profile update failed : {0}", profile.getName());
+        }
+        response.sendRedirect("/shopify/home");
 
     }
 

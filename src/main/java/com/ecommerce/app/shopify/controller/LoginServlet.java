@@ -51,7 +51,7 @@ public class LoginServlet extends HttpServlet {
                         signUp(request, response);
                         break;
                     case "Register":
-                        register(request, response);
+                        saveUser(request, response);
                         break;
                     default:
                         defaultAction(request, response);
@@ -218,14 +218,17 @@ public class LoginServlet extends HttpServlet {
     public void signUp(HttpServletRequest request, HttpServletResponse response) throws Exception {
         //unlock
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/signup.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile-add.jsp");
         dispatcher.forward(request, response);
 
     }
 
-    public void register(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        //unlock
+    public void saveUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        Long profileId = null;
+        if (!request.getParameter("profileId").equals("")) {
+            profileId = Long.parseLong(request.getParameter("profileId"));
+        }
         String uname = request.getParameter("uname");
         String pwd = request.getParameter("pwd");
         String name = request.getParameter("name");
@@ -241,8 +244,10 @@ public class LoginServlet extends HttpServlet {
         String urole = "USER";
 
         Profile profile = new Profile(uname, pwd, "", Boolean.TRUE, name, gender, email, address, city, state, country, pincode, mobile, status, urole);
-
-        if (DaoImpl.INSTANCE.createUser(profile) == Boolean.TRUE) {
+        if (profileId != null) {
+            profile.setProfileId(profileId);
+        }
+        if (DaoImpl.INSTANCE.saveProfile(profile) == Boolean.TRUE) {
             request.setAttribute("flash_msg", "Profile Created Successfully. Please Login!");
         } else {
             request.setAttribute("flash_msg", "Profile Creation Failed! Please try again!");

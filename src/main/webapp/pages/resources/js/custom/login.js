@@ -11,10 +11,17 @@ $(function() {
 
     $("#login").click(function() {
 
+        uname = $("#uname").val();
+        pwd = $("#pwd").val();
+        if (uname === "" || pwd === "") {
+            alert("Please enter login credentials!");
+            return false;
+        }
+
         if ($("#captchaStatus").val() === "false") {
             if ($("#loginAttempt").val() >= CAPTACH_ATTEMPT_INTERVAL) {
                 //READ:Validate captcha if attempt is greater than 3.
-                event.preventDefault();
+                //event.preventDefault();
                 validateCaptcha();
                 return false;
             }
