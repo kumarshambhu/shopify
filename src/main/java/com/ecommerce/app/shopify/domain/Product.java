@@ -1,8 +1,6 @@
 package com.ecommerce.app.shopify.domain;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,7 +13,7 @@ public class Product implements java.io.Serializable {
     private String code;
     private String name;
     private String category;
-    private BigDecimal price;
+    private Float price;
     private String description;
     private byte[] imageByteArry;
     private Part imagePart;
@@ -30,7 +28,7 @@ public class Product implements java.io.Serializable {
         this.code = rs.getString("CODE");
         this.name = rs.getString("NAME");
         this.category = rs.getString("CATEGORY");
-        this.price = rs.getBigDecimal("PRICE");
+        this.price = rs.getFloat("PRICE");
         this.description = rs.getString("DESCRIPTION");
 
         Blob image = rs.getBlob("IMAGE");
@@ -42,7 +40,7 @@ public class Product implements java.io.Serializable {
         this.changeTime = rs.getTimestamp("CHANGE_TIME");
     }
 
-    public Product(long productId, String code, String name, String category, BigDecimal price, String description, byte[] imageByteArry, Date changeTime) {
+    public Product(long productId, String code, String name, String category, Float price, String description, byte[] imageByteArry, Date changeTime) {
         this.productId = productId;
         this.code = code;
         this.name = name;
@@ -85,11 +83,11 @@ public class Product implements java.io.Serializable {
         this.category = category;
     }
 
-    public BigDecimal getPrice() {
-        return this.price;
+    public Float getPrice() {
+        return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(Float price) {
         this.price = price;
     }
 

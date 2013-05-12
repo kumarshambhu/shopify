@@ -2,11 +2,8 @@ package com.ecommerce.app.shopify.controller;
 
 import com.ecommerce.app.shopify.dao.DaoImpl;
 import com.ecommerce.app.shopify.domain.Product;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
@@ -69,9 +66,9 @@ public class ProductServlet extends HttpServlet {
         String name = request.getParameter("name");
         String code = request.getParameter("code");
         String category = request.getParameter("category");
-        BigDecimal price = new BigDecimal(request.getParameter("price"));
+        Float price = Float.parseFloat(request.getParameter("price"));
         String description = request.getParameter("description");
-        
+
         Product product = new Product();
         product.setName(name);
         product.setCode(code);

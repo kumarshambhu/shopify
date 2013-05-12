@@ -28,7 +28,6 @@ public class Authenticator implements Filter {
         try {
 
             HttpServletRequest req = (HttpServletRequest) request;
-
             //Authentication & Authorization.
             if (req.getRequestURI().contains("/login") && req.getParameter("action") != null && req.getParameter("action").equals("Sign Up")) {
                 //Do nothing.

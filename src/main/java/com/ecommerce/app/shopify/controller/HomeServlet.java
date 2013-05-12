@@ -1,10 +1,14 @@
 package com.ecommerce.app.shopify.controller;
 
 import com.ecommerce.app.shopify.dao.DaoImpl;
+import com.ecommerce.app.shopify.domain.LineItems;
 import com.ecommerce.app.shopify.domain.Product;
 import com.ecommerce.app.shopify.domain.Profile;
+import com.ecommerce.app.shopify.domain.SaleOrder;
+import com.ecommerce.app.shopify.util.EmailUtil;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +19,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "Home", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {
@@ -43,6 +48,9 @@ public class HomeServlet extends HttpServlet {
                         break;
                     case "Update Profile":
                         updateUser(request, response);
+                        break;
+                    case "Checkout":
+                        checkOut(request, response);
                         break;
                     default:
                         defaultAction(request, response);
@@ -117,10 +125,67 @@ public class HomeServlet extends HttpServlet {
     }
 
     public void cart(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        List<Product> productLst = DaoImpl.INSTANCE.getProducts();
-        request.setAttribute("productLst", productLst);
+
+        Long productId = Long.parseLong(request.getParameter("productId"));
+        Integer productQty = Integer.parseInt(request.getParameter("productQty"));
+        logger.log(Level.INFO, "productId: {0},productQty: {1}", new Object[]{productId, productQty});
+        HttpSession session = request.getSession(false);
+        LineItems lineItem = new LineItems();
+        lineItem.setProductId(productId);
+        lineItem.setQty(productQty);
+
+        List<LineItems> lineItemsLst = (List<LineItems>) session.getAttribute("lineItemsLst");
+        if (lineItemsLst == null) {
+            lineItemsLst = new ArrayList<LineItems>();
+        }
+
+        Product product = DaoImpl.INSTANCE.getProductById(productId);
+        lineItem.setName(product.getCode() + ": " + product.getName());
+        lineItem.setPrice(product.getPrice() * productQty);
+        lineItemsLst.add(lineItem);
+        //Add the cart details to session so that its easy to acess across pages.
+        session.setAttribute("lineItemsLst", lineItemsLst);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/cart.jsp");
         dispatcher.forward(request, response);
+    }
+
+    public void checkOut(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpSession session = request.getSession(false);
+        List<LineItems> lineItemsLst = (List<LineItems>) session.getAttribute("lineItemsLst");
+        if (lineItemsLst == null) {
+            request.setAttribute("error", "No Items in Cart!");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+        } else {
+
+            Long profileId = Long.parseLong(session.getAttribute("uid").toString());
+            SaleOrder saleOrder = new SaleOrder();
+            saleOrder.setOrderStatus("SHIPPMENT_PENDING_DELIVERY");
+            saleOrder.setProfileId(profileId);
+            DaoImpl.INSTANCE.saveOrder(saleOrder, lineItemsLst);
+            Profile profile = DaoImpl.INSTANCE.getProfile(profileId);
+            Float priceTotal = 0f;
+            StringBuilder mailBody = new StringBuilder();
+            mailBody.append("Your order id: ").append(saleOrder.getOrderId()).append("\n");
+            mailBody.append("Order Status: ").append(saleOrder.getOrderStatus()).append("\n");
+            mailBody.append("\n");
+            mailBody.append("Purchase Details").append("\n");
+
+
+            for (LineItems lineItem : lineItemsLst) {
+                mailBody.append("Product Name: ").append(lineItem.getName()).append(", Quantity: ").append(lineItem.getQty()).append(", Price: " + lineItem.getPrice());
+                mailBody.append("\n");
+                priceTotal= priceTotal + (lineItem.getPrice() * lineItem.getQty());
+            }
+            mailBody.append("\n").append("Total Sum: ").append(priceTotal);
+
+            EmailUtil.INSTANCE.sendMail("Purchase Order Placed!", mailBody.toString(), profile.getEmail(), null, null);
+
+        }
+
+        session.setAttribute("lineItemsLst", null);
+        request.setAttribute("flash_msg", "Checkout Completed!");
+        defaultAction(request, response);
     }
 
     public void retrieveImage(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -129,7 +194,7 @@ public class HomeServlet extends HttpServlet {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             Long id = Long.parseLong(request.getParameter("id"));
             Product product = DaoImpl.INSTANCE.getProductById(id);
-            response.setContentType("image/jpg");
+//            response.setContentType("image/jpg");
             byte[] imageByteArry = product.getImageByteArry();
             outputStream.write(imageByteArry, 0, imageByteArry.length);
         } catch (Exception ex) {

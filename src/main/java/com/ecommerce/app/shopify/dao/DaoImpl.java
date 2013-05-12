@@ -1,11 +1,14 @@
 package com.ecommerce.app.shopify.dao;
 
+import com.ecommerce.app.shopify.domain.LineItems;
 import com.ecommerce.app.shopify.domain.Product;
 import com.ecommerce.app.shopify.domain.Profile;
+import com.ecommerce.app.shopify.domain.SaleOrder;
 import com.ecommerce.app.shopify.util.Const;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -196,7 +199,7 @@ public enum DaoImpl {
             pstmt.setString(1, product.getCode());
             pstmt.setString(2, product.getName());
             pstmt.setString(3, product.getCategory());
-            pstmt.setBigDecimal(4, product.getPrice());
+            pstmt.setFloat(4, product.getPrice());
             pstmt.setString(5, product.getDescription());
             pstmt.setBlob(6, product.getImagePart().getInputStream());
 
@@ -283,6 +286,43 @@ public enum DaoImpl {
                 }
 
             }
+        }
+        return false;
+    }
+
+    public Boolean saveOrder(SaleOrder saleOrder, List<LineItems> lineItemsLst) throws Exception {
+
+        logger.log(Level.INFO, "Saving Sale Order");
+
+        String query1 = "INSERT INTO SALE_ORDER (PROFILE_ID,ORDER_TIME,ORDER_STATUS,DELIVERY_TIME_START,DELIVERY_TIME_END,CHANGE_TIME) VALUES (?,CURRENT_TIMESTAMP,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,DEFAULT)";
+        String query2 = "INSERT INTO LINE_ITEMS (PRODUCT_ID,ORDER_ID,QTY,CHANGE_TIME) VALUES (?,?,?,DEFAULT)";
+
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS); PreparedStatement pstmt2 = connection.prepareStatement(query2);) {
+            connection.setAutoCommit(false);
+
+            pstmt1.setLong(1, saleOrder.getProfileId());
+            pstmt1.setString(2, saleOrder.getOrderStatus());
+
+
+            Integer rowsAffected = pstmt1.executeUpdate();
+            if (rowsAffected > 0) {
+
+                ResultSet rs = pstmt1.getGeneratedKeys();
+                rs.next();
+                Long saleOrderId = rs.getLong(1);
+                saleOrder.setOrderId(saleOrderId);
+
+                for (LineItems lineItem : lineItemsLst) {
+                    pstmt2.setLong(1, lineItem.getProductId());
+                    pstmt2.setLong(2, saleOrderId);
+                    pstmt2.setInt(3, lineItem.getQty());
+                    pstmt2.executeUpdate();
+                }
+                connection.commit();
+                return true;
+            }
+
+
         }
         return false;
     }
