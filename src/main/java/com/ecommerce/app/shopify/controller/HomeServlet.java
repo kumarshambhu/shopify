@@ -72,7 +72,7 @@ public class HomeServlet extends HttpServlet {
         //unlock
         if (request.getParameter("profileId") != null) {
             Long profileId = Long.parseLong(request.getParameter("profileId"));
-            Profile profile = DaoImpl.INSTANCE.getProfile(profileId);
+            Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
             request.setAttribute("profile", profile);
             RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile-add.jsp");
             dispatcher.forward(request, response);
@@ -118,7 +118,7 @@ public class HomeServlet extends HttpServlet {
     }
 
     public void defaultAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        List<Product> productLst = DaoImpl.INSTANCE.getProducts();
+        List<Product> productLst = DaoImpl.INSTANCE.getAllProducts();
         request.setAttribute("productLst", productLst);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/home.jsp");
         dispatcher.forward(request, response);
@@ -163,7 +163,7 @@ public class HomeServlet extends HttpServlet {
             saleOrder.setOrderStatus("SHIPPMENT_PENDING_DELIVERY");
             saleOrder.setProfileId(profileId);
             DaoImpl.INSTANCE.saveOrder(saleOrder, lineItemsLst);
-            Profile profile = DaoImpl.INSTANCE.getProfile(profileId);
+            Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
             Float priceTotal = 0f;
             StringBuilder mailBody = new StringBuilder();
             mailBody.append("Your order id: ").append(saleOrder.getOrderId()).append("\n");

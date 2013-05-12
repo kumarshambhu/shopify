@@ -104,12 +104,29 @@ public enum DaoImpl {
         return false;
     }
 
-    public Profile getProfile(Long profileId) throws Exception {
+    public Profile getProfileById(Long profileId) throws Exception {
         ResultSet resultSet = null;
         Profile profile = null;
         String query = "SELECT * FROM PROFILE where PROFILE_ID = ?";
         try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setLong(1, profileId);
+            resultSet = pstmt.executeQuery();
+
+            while (resultSet.next()) {
+                profile = new Profile(resultSet);
+                return profile;
+            }
+
+        }
+        return profile;
+    }
+
+    public Profile getProfileByName(String uname) throws Exception {
+        ResultSet resultSet = null;
+        Profile profile = null;
+        String query = "SELECT * FROM PROFILE where UNAME = ?";
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, uname);
             resultSet = pstmt.executeQuery();
 
             while (resultSet.next()) {
@@ -177,7 +194,7 @@ public enum DaoImpl {
 
     }
 
-    public List<Product> getProducts() throws Exception {
+    public List<Product> getAllProducts() throws Exception {
         ResultSet resultSet = null;
         List<Product> productLst = new ArrayList();
         String query = "SELECT * FROM PRODUCT";
@@ -330,7 +347,7 @@ public enum DaoImpl {
 
     public List<SaleOrder> getSaleOrderByProfileId(Long profileId) throws Exception {
         ResultSet resultSet = null;
-        Profile profile = this.getProfile(profileId);
+        Profile profile = this.getProfileById(profileId);
         String query;
         if (profile.getUrole().equals(Const.INSTANCE.ADMIN)) {
             //if admin load all order details.
@@ -372,7 +389,7 @@ public enum DaoImpl {
 
     public List<LineItems> getAllLineItemByProfileId(Long profileId) throws Exception {
         ResultSet resultSet = null;
-        Profile profile = this.getProfile(profileId);
+        Profile profile = this.getProfileById(profileId);
         String query;
         if (profile.getUrole().equals(Const.INSTANCE.ADMIN)) {
             //if admin load all order details.

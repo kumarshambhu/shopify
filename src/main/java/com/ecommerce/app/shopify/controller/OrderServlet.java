@@ -52,7 +52,7 @@ public class OrderServlet extends HttpServlet {
         List<SaleOrder> saleOrderLst = DaoImpl.INSTANCE.getSaleOrderByProfileId(profileId);
         List<Profile> profileLst = DaoImpl.INSTANCE.getAllProfiles();
         List<LineItems> lineItemsLst = DaoImpl.INSTANCE.getAllLineItemByProfileId(profileId);
-        List<Product> productLst = DaoImpl.INSTANCE.getProducts();
+        List<Product> productLst = DaoImpl.INSTANCE.getAllProducts();
 
         request.setAttribute("productLst", productLst);
         request.setAttribute("lineItemsLst", lineItemsLst);

@@ -172,7 +172,7 @@ public class LoginServlet extends HttpServlet {
         //All sucess, set the user id in session and default action will show home page.
         logger.log(Level.INFO, " User Logged In: {0} at {1}", new Object[]{profileId, new Date()});
         session.setAttribute("uid", profileId);
-        Profile profile = DaoImpl.INSTANCE.getProfile(profileId);
+        Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
         session.setAttribute("user", profile.getName());
         session.setAttribute("urole", profile.getUrole());
 
@@ -180,6 +180,10 @@ public class LoginServlet extends HttpServlet {
 
     public void forgotPwd(HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info("Forgot Pwd!");
+        String uname = request.getParameter("uname");
+        Profile profile = DaoImpl.INSTANCE.getProfileByName(uname);
+        EmailUtil.INSTANCE.sendMail("Forgot Password", "Your password is: " + profile.getPwd(), profile.getEmail(), null, null);
+        request.setAttribute("flash_msg", "Your Password has been mailed to you!");
         defaultAction(request, response);
     }
 
