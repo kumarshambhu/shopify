@@ -39,11 +39,7 @@ public class Authenticator implements Filter {
                 RequestDispatcher dispatcher;
                 if (session != null) {
                     if (session.getAttribute("uid") == null) {
-                        if (req.getRequestURI().equals("login")) {
-                            dispatcher = request.getRequestDispatcher("/login");
-                        } else {
-                            dispatcher = request.getRequestDispatcher("/login?nextUrl=" + req.getRequestURI());
-                        }
+                        dispatcher = request.getRequestDispatcher("/login");
                         dispatcher.forward(request, response);
                         return;
                     }

@@ -180,8 +180,7 @@ public class LoginServlet extends HttpServlet {
 
     public void forgotPwd(HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info("Forgot Pwd!");
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/home.jsp");
-        dispatcher.forward(request, response);
+        defaultAction(request, response);
     }
 
     public void validateCaptcha(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -260,17 +259,13 @@ public class LoginServlet extends HttpServlet {
     public void defaultAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
         //Create a session if one doesnt exist.
         HttpSession session = request.getSession(true);
-        String nextUrl = request.getParameter("nextUrl");
+
 
         //If authenticated goto
         if (session.getAttribute("uid") != null) {
-            if (nextUrl == null) {
-                RequestDispatcher dispatcher;
-                dispatcher = request.getRequestDispatcher("/home");
-                dispatcher.forward(request, response);
-            } else {
-                response.sendRedirect(nextUrl);
-            }
+            RequestDispatcher dispatcher;
+            dispatcher = request.getRequestDispatcher("/home");
+            dispatcher.forward(request, response);
         } else {
             Integer loginAttempt = 0;
 

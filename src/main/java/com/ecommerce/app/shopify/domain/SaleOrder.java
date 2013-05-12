@@ -1,5 +1,7 @@
 package com.ecommerce.app.shopify.domain;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
 public class SaleOrder implements java.io.Serializable {
@@ -23,6 +25,16 @@ public class SaleOrder implements java.io.Serializable {
         this.deliveryTimeStart = deliveryTimeStart;
         this.deliveryTimeEnd = deliveryTimeEnd;
         this.changeTime = changeTime;
+    }
+
+    public SaleOrder(ResultSet rs) throws SQLException {
+        this.orderId = rs.getLong("ORDER_ID");
+        this.profileId = rs.getLong("PROFILE_ID");
+        this.orderTime = rs.getTimestamp("ORDER_TIME");
+        this.orderStatus = rs.getString("ORDER_STATUS");
+        this.deliveryTimeStart = rs.getTimestamp("DELIVERY_TIME_START");
+        this.deliveryTimeEnd = rs.getTimestamp("DELIVERY_TIME_END");
+        this.changeTime = rs.getTimestamp("CHANGE_TIME");
     }
 
     public long getOrderId() {

@@ -15,4 +15,6 @@ public enum Const {
     public String SHIPPMENT_PENDING_DELIVERY  = "PENDING DELIVERY";
     public String SHIPPMENT_DISPATCHED = "PENDING DISPATCHED";
     public String SHIPPMENT_DELIVERED = "DELIVERED";
+    public String ADMIN="ADMIN";
+    public String USER="USER";
 }

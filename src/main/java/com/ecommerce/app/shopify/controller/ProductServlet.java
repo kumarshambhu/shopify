@@ -3,7 +3,6 @@ package com.ecommerce.app.shopify.controller;
 import com.ecommerce.app.shopify.dao.DaoImpl;
 import com.ecommerce.app.shopify.domain.Product;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
@@ -57,7 +56,7 @@ public class ProductServlet extends HttpServlet {
     }
 
     public void defaultAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/add-product.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/product-add.jsp");
         dispatcher.forward(request, response);
     }
 

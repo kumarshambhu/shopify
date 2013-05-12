@@ -326,4 +326,30 @@ public enum DaoImpl {
         }
         return false;
     }
+
+    public List<SaleOrder> getSaleOrderByProfileId(Long profileId) throws Exception {
+        ResultSet resultSet = null;
+        Profile profile = this.getProfile(profileId);
+        String query;
+        if (profile.getUrole().equals(Const.INSTANCE.ADMIN)) {
+            //if admin load all order details.
+            query = "SELECT * FROM SALE_ORDER";
+        } else {
+            //if single user load only his orders.
+            query = "SELECT * FROM SALE_ORDER where PROFILE_ID = " + profileId;
+
+        }
+
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
+            connection.setAutoCommit(false);
+            List<SaleOrder> saleOrderLst = new ArrayList();
+            resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                saleOrderLst.add(new SaleOrder(resultSet));
+
+            }
+            return saleOrderLst;
+        }
+        
+    }
 }

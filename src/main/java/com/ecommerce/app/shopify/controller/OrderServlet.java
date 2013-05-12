@@ -1,7 +1,9 @@
 package com.ecommerce.app.shopify.controller;
 
+import com.ecommerce.app.shopify.dao.DaoImpl;
+import com.ecommerce.app.shopify.domain.SaleOrder;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
@@ -10,11 +12,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-/**
- *
- * @author asurendra
- */
 @WebServlet(name = "Order", urlPatterns = {"/order"})
 public class OrderServlet extends HttpServlet {
 
@@ -29,15 +28,6 @@ public class OrderServlet extends HttpServlet {
 
             if (action != null) {
                 switch (action) {
-                    case "Delete Lineitem":
-                        defaultAction(request, response);
-                        break;
-                    case "Add Lineitem":
-                        defaultAction(request, response);
-                        break;
-                    case "Checkout":
-                        defaultAction(request, response);
-                        break;
                     default:
                         defaultAction(request, response);
                         break;
@@ -54,7 +44,11 @@ public class OrderServlet extends HttpServlet {
     }
 
     public void defaultAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/home.jsp");
+        HttpSession session = request.getSession(false);
+        Long profileId = Long.parseLong(session.getAttribute("uid").toString());
+        List<SaleOrder> saleOrderLst = DaoImpl.INSTANCE.getSaleOrderByProfileId(profileId);
+        request.setAttribute("saleOrderLst", saleOrderLst);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/order.jsp");
         dispatcher.forward(request, response);
     }
 
