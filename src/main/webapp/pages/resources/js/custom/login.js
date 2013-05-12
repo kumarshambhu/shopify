@@ -9,6 +9,15 @@ $(function() {
         }
     });
 
+    $("#forgotPwd").click(function() {
+
+        uname = $("#uname").val();
+        if (uname === "") {
+            alert("Please valid user name!");
+            return false;
+        }
+    });
+
     $("#login").click(function() {
 
         uname = $("#uname").val();

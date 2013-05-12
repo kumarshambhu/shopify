@@ -263,7 +263,7 @@ public enum DaoImpl {
         logger.log(Level.INFO, "Update User: {0}", profile.getName());
 
         if (profile.getProfileId() != 0l) {
-            String query = "UPDATE PROFILE SET UNAME = ?,PWD =?,NAME=?,GENDER=?,EMAIL=?,ADDRESS=?,CITY=?,STATE=?,COUNTRY=?,PINCODE=?,MOBILE=?,STATUS=?,CHANGE_TIME=CURRENT_TIMESTAMP) where PROFILE_ID = ?";
+            String query = "UPDATE PROFILE SET UNAME = ?,PWD =?,NAME=?,GENDER=?,EMAIL=?,ADDRESS=?,CITY=?,STATE=?,COUNTRY=?,PINCODE=?,MOBILE=?,STATUS=?,CHANGE_TIME=CURRENT_TIMESTAMP where PROFILE_ID = ?";
             try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query);) {
                 connection.setAutoCommit(false);
 
@@ -279,6 +279,7 @@ public enum DaoImpl {
                 pstmt.setLong(10, profile.getPincode());
                 pstmt.setLong(11, profile.getMobile());
                 pstmt.setString(12, profile.getStatus());
+                pstmt.setLong(13, profile.getProfileId());
                 Integer rowsAffected = pstmt.executeUpdate();
                 if (rowsAffected > 0) {
                     connection.commit();
