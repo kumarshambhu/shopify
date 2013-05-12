@@ -1,6 +1,9 @@
 package com.ecommerce.app.shopify.controller;
 
 import com.ecommerce.app.shopify.dao.DaoImpl;
+import com.ecommerce.app.shopify.domain.LineItems;
+import com.ecommerce.app.shopify.domain.Product;
+import com.ecommerce.app.shopify.domain.Profile;
 import com.ecommerce.app.shopify.domain.SaleOrder;
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +50,14 @@ public class OrderServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         Long profileId = Long.parseLong(session.getAttribute("uid").toString());
         List<SaleOrder> saleOrderLst = DaoImpl.INSTANCE.getSaleOrderByProfileId(profileId);
+        List<Profile> profileLst = DaoImpl.INSTANCE.getAllProfiles();
+        List<LineItems> lineItemsLst = DaoImpl.INSTANCE.getAllLineItemByProfileId(profileId);
+        List<Product> productLst = DaoImpl.INSTANCE.getProducts();
+
+        request.setAttribute("productLst", productLst);
+        request.setAttribute("lineItemsLst", lineItemsLst);
         request.setAttribute("saleOrderLst", saleOrderLst);
+        request.setAttribute("profileLst", profileLst);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/order.jsp");
         dispatcher.forward(request, response);
     }

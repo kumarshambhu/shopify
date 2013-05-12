@@ -1,5 +1,7 @@
 package com.ecommerce.app.shopify.domain;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
 public class LineItems implements java.io.Serializable {
@@ -23,6 +25,14 @@ public class LineItems implements java.io.Serializable {
         this.productId = productId;
         this.qty = qty;
         this.changeTime = changeTime;
+    }
+
+    public LineItems(ResultSet rs) throws SQLException {
+        this.itemId = rs.getLong("LINE_ITEM_ID");
+        this.orderId = rs.getLong("ORDER_ID");
+        this.productId = rs.getLong("PRODUCT_ID");
+        this.qty = rs.getInt("QTY");
+        this.changeTime = rs.getTimestamp("CHANGE_TIME");
     }
 
     public long getLineItemId() {

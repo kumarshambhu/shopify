@@ -350,6 +350,48 @@ public enum DaoImpl {
             }
             return saleOrderLst;
         }
-        
+
+    }
+
+    public List<Profile> getAllProfiles() throws Exception {
+        ResultSet resultSet = null;
+        String query = "SELECT * FROM PROFILE";
+        List<Profile> profileLst = new ArrayList<Profile>();
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
+            resultSet = pstmt.executeQuery();
+
+            while (resultSet.next()) {
+                profileLst.add(new Profile(resultSet));
+            }
+
+            return profileLst;
+        }
+
+    }
+
+    public List<LineItems> getAllLineItemByProfileId(Long profileId) throws Exception {
+        ResultSet resultSet = null;
+        Profile profile = this.getProfile(profileId);
+        String query;
+        if (profile.getUrole().equals(Const.INSTANCE.ADMIN)) {
+            //if admin load all order details.
+            query = "SELECT * FROM LINE_ITEMS";
+        } else {
+            //if single user load only his orders.
+            query = "SELECT * FROM LINE_ITEMS,SALE_ORDER where LINE_ITEMS.ORDER_ID = SALE_ORDER.ORDER_ID AND SALE_ORDER.PROFILE_ID = " + profileId;
+
+        }
+
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
+            connection.setAutoCommit(false);
+            List<LineItems> lineItemsLst = new ArrayList();
+            resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                lineItemsLst.add(new LineItems(resultSet));
+
+            }
+            return lineItemsLst;
+        }
+
     }
 }
