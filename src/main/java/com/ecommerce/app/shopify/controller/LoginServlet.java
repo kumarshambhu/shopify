@@ -221,7 +221,7 @@ public class LoginServlet extends HttpServlet {
     public void signUp(HttpServletRequest request, HttpServletResponse response) throws Exception {
         //unlock
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile-add.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile.jsp");
         dispatcher.forward(request, response);
 
     }

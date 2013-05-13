@@ -28,24 +28,24 @@ public class ProductServlet extends HttpServlet {
 
             if (action != null) {
                 switch (action) {
-                    case "Edit Product":
-                        defaultAction(request, response);
+                    case "EditProduct":
+                        editProduct(request, response);
                         break;
                     case "Save Product":
-                        addProduct(request, response);
+                        saveProduct(request, response);
                         break;
                     case "Update Product":
-                        defaultAction(request, response);
+                        updateProduct(request, response);
                         break;
                     case "Delete Product":
-                        defaultAction(request, response);
+                        deleteProduct(request, response);
                         break;
                     default:
-                        defaultAction(request, response);
+                        addProduct(request, response);
                         break;
                 }
             } else {
-                defaultAction(request, response);
+                addProduct(request, response);
             }
         } catch (Exception ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -55,12 +55,27 @@ public class ProductServlet extends HttpServlet {
         }
     }
 
-    public void defaultAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/product-add.jsp");
+    public void addProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/product.jsp");
         dispatcher.forward(request, response);
     }
 
-    public void addProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void editProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Long productId = Long.parseLong(request.getParameter("productId"));
+        Product product = DaoImpl.INSTANCE.getProductById(productId);
+        request.setAttribute("product", product);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/product.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    public void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Long productId = Long.parseLong(request.getParameter("productId"));
+        DaoImpl.INSTANCE.deleteProduct(productId);
+        response.sendRedirect("/shopify/home");
+    }
+
+    public void saveProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String name = request.getParameter("name");
         String code = request.getParameter("code");
@@ -77,15 +92,46 @@ public class ProductServlet extends HttpServlet {
 
 
         Part imagePart = request.getPart("image");
-        if (imagePart != null) {
+        if (imagePart.getSize() > 0) {
             // prints out some information for debugging
             product.setImagePart(imagePart);
-            System.out.println(imagePart.getName());
-            System.out.println(imagePart.getSize());
-            System.out.println(imagePart.getContentType());
+            //System.out.println(imagePart.getName());
+            //System.out.println(imagePart.getSize());
+            //System.out.println(imagePart.getContentType());
 
         }
         DaoImpl.INSTANCE.saveProduct(product);
+        response.sendRedirect("/shopify/home");
+    }
+
+    public void updateProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        Long productId = Long.parseLong(request.getParameter("productId"));
+        String name = request.getParameter("name");
+        String code = request.getParameter("code");
+        String category = request.getParameter("category");
+        Float price = Float.parseFloat(request.getParameter("price"));
+        String description = request.getParameter("description");
+
+        Product product = new Product();
+        product.setProductId(productId);
+        product.setName(name);
+        product.setCode(code);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setDescription(description);
+
+
+        Part imagePart = request.getPart("image");
+        if (imagePart.getSize() > 0) {
+            // prints out some information for debugging
+            product.setImagePart(imagePart);
+            //System.out.println(imagePart.getName());
+            //System.out.println(imagePart.getSize());
+            //System.out.println(imagePart.getContentType());
+
+        }
+        DaoImpl.INSTANCE.updateProduct(product);
         response.sendRedirect("/shopify/home");
     }
 

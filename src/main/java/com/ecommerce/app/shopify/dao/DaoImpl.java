@@ -5,6 +5,7 @@ import com.ecommerce.app.shopify.domain.Product;
 import com.ecommerce.app.shopify.domain.Profile;
 import com.ecommerce.app.shopify.domain.SaleOrder;
 import com.ecommerce.app.shopify.util.Const;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -218,8 +219,60 @@ public enum DaoImpl {
             pstmt.setString(3, product.getCategory());
             pstmt.setFloat(4, product.getPrice());
             pstmt.setString(5, product.getDescription());
-            pstmt.setBlob(6, product.getImagePart().getInputStream());
+            if (product.getImagePart() != null) {
+                pstmt.setBlob(6, product.getImagePart().getInputStream());
+            } else {
+                pstmt.setNull(6, java.sql.Types.BLOB);
+            }
 
+
+            Integer rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                connection.commit();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Boolean updateProduct(Product product) throws Exception {
+        logger.log(Level.INFO, "Updating Product: {0}", product.getName());
+        String query;
+        if (product.getImagePart() != null) {
+            query = "UPDATE PRODUCT SET CODE = ?, NAME =? , CATEGORY=?, PRICE=?, DESCRIPTION=?, IMAGE=? where PRODUCT_ID = ?";
+        } else {
+            query = "UPDATE PRODUCT SET CODE = ?, NAME =? , CATEGORY=?, PRICE=?, DESCRIPTION=? where PRODUCT_ID = ?";
+        }
+
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
+            connection.setAutoCommit(false);
+            pstmt.setString(1, product.getCode());
+            pstmt.setString(2, product.getName());
+            pstmt.setString(3, product.getCategory());
+            pstmt.setFloat(4, product.getPrice());
+            pstmt.setString(5, product.getDescription());
+            if (product.getImagePart() != null) {
+                pstmt.setBlob(6, product.getImagePart().getInputStream());
+                pstmt.setLong(7, product.getProductId());
+            } else {
+                pstmt.setLong(6, product.getProductId());
+            }
+
+            Integer rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                connection.commit();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Boolean deleteProduct(Long productId) throws Exception {
+        logger.log(Level.INFO, "Deleting Product Id: {0}", productId);
+        String query = "DELETE FROM PRODUCT where PRODUCT_ID = ?";
+        try (Connection connection = datasource.getConnection(); PreparedStatement pstmt = connection.prepareStatement(query)) {
+            connection.setAutoCommit(false);
+            pstmt.setLong(1, productId);
             Integer rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
                 connection.commit();

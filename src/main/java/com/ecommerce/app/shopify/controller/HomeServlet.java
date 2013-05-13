@@ -74,7 +74,7 @@ public class HomeServlet extends HttpServlet {
             Long profileId = Long.parseLong(request.getParameter("profileId"));
             Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
             request.setAttribute("profile", profile);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile-add.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/profile.jsp");
             dispatcher.forward(request, response);
         } else {
             request.setAttribute("error", "No profile Id provided!");
