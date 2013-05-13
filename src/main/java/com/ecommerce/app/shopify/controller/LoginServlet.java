@@ -182,9 +182,16 @@ public class LoginServlet extends HttpServlet {
         logger.info("Forgot Pwd!");
         String uname = request.getParameter("uname");
         Profile profile = DaoImpl.INSTANCE.getProfileByName(uname);
-        EmailUtil.INSTANCE.sendMail("Forgot Password", "Your password is: " + profile.getPwd(), profile.getEmail(), null, null);
-        request.setAttribute("flash_msg", "Your Password has been mailed to you!");
-        defaultAction(request, response);
+        if (profile != null) {
+            EmailUtil.INSTANCE.sendMail("Forgot Password", "Your password is: " + profile.getPwd(), profile.getEmail(), null, null);
+            request.setAttribute("flash_msg", "Your Password has been mailed to you!");
+            defaultAction(request, response);
+        } else {
+            request.setAttribute("error", "User Doesnt Exist!");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+        }
+
     }
 
     public void validateCaptcha(HttpServletRequest request, HttpServletResponse response) throws Exception {
