@@ -6,6 +6,11 @@ $(function() {
             return false;
         }
 
+        if ( $("#name").val() == "" || $("#uname").val() == "" || ($("#pwd").val() == "") || $("#address").val() == "" || $("#pincode").val() == "" || $("#mobile").val() == "" ) {
+            alert("Please fill all mandatory fields!");
+            return false;
+        }
+
     });
 });
 
