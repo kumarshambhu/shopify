@@ -71,8 +71,14 @@ public class ProductServlet extends HttpServlet {
 
     public void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Long productId = Long.parseLong(request.getParameter("productId"));
-        DaoImpl.INSTANCE.deleteProduct(productId);
-        response.sendRedirect("/shopify/home");
+        if (DaoImpl.INSTANCE.deleteProduct(productId) == Boolean.TRUE) {
+            response.sendRedirect("/shopify/home");
+        } else {
+            request.setAttribute("error", "Product couldnt be deleted! productId: " + productId);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+        }
+
     }
 
     public void saveProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -100,8 +106,13 @@ public class ProductServlet extends HttpServlet {
             //System.out.println(imagePart.getContentType());
 
         }
-        DaoImpl.INSTANCE.saveProduct(product);
-        response.sendRedirect("/shopify/home");
+        if (DaoImpl.INSTANCE.saveProduct(product) == Boolean.TRUE) {
+            response.sendRedirect("/shopify/home");
+        } else {
+            request.setAttribute("error", "Product couldnt be saved, Product Name: " + name);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+        }
     }
 
     public void updateProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -131,8 +142,14 @@ public class ProductServlet extends HttpServlet {
             //System.out.println(imagePart.getContentType());
 
         }
-        DaoImpl.INSTANCE.updateProduct(product);
-        response.sendRedirect("/shopify/home");
+        if (DaoImpl.INSTANCE.updateProduct(product) == Boolean.TRUE) {
+            response.sendRedirect("/shopify/home");
+        } else {
+            request.setAttribute("error", "Product couldnt be updated, productId: " + productId);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+        }
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

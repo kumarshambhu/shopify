@@ -5,7 +5,6 @@ import com.ecommerce.app.shopify.domain.Product;
 import com.ecommerce.app.shopify.domain.Profile;
 import com.ecommerce.app.shopify.domain.SaleOrder;
 import com.ecommerce.app.shopify.util.Const;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

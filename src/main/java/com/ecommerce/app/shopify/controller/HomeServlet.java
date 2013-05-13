@@ -111,12 +111,15 @@ public class HomeServlet extends HttpServlet {
         if (profileId != null) {
             profile.setProfileId(profileId);
         }
-        if (DaoImpl.INSTANCE.updateProfile(profile) == Boolean.FALSE) {
+        if (DaoImpl.INSTANCE.updateProfile(profile) == Boolean.TRUE) {
             logger.log(Level.INFO, "Profile updated successfuly : {0}", profile.getName());
+            response.sendRedirect("/shopify/home");
         } else {
-            logger.log(Level.INFO, "Profile update failed : {0}", profile.getName());
+            request.setAttribute("error", "Profile Update Failed for " + profile.getName());
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+            dispatcher.forward(request, response);
+
         }
-        response.sendRedirect("/shopify/home");
 
     }
 
@@ -183,27 +186,33 @@ public class HomeServlet extends HttpServlet {
             SaleOrder saleOrder = new SaleOrder();
             saleOrder.setOrderStatus("SHIPPMENT_PENDING_DELIVERY");
             saleOrder.setProfileId(profileId);
-            DaoImpl.INSTANCE.saveOrder(saleOrder, lineItemsLst);
-            Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
-            Float priceTotal = 0f;
-            StringBuilder mailBody = new StringBuilder();
-            mailBody.append("Order Placed By: ").append(profile.getName()).append("\n");
-            mailBody.append("Your order id: ").append(saleOrder.getOrderId()).append("\n");
-            mailBody.append("Order Status: ").append(saleOrder.getOrderStatus()).append("\n");
-            mailBody.append("\n");
-            mailBody.append("Purchase Details").append("\n");
-
-
-            for (LineItems lineItem : lineItemsLst) {
-                mailBody.append("Product Name: ").append(lineItem.getName()).append(", Quantity: ").append(lineItem.getQty()).append(", Price Per Unit: ").append(lineItem.getPrice()).append(", Amount: ").append(lineItem.getQty() * lineItem.getPrice());
+            if (DaoImpl.INSTANCE.saveOrder(saleOrder, lineItemsLst) == Boolean.TRUE) {
+                Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
+                Float priceTotal = 0f;
+                StringBuilder mailBody = new StringBuilder();
+                mailBody.append("Order Placed By: ").append(profile.getName()).append("\n");
+                mailBody.append("Your order id: ").append(saleOrder.getOrderId()).append("\n");
+                mailBody.append("Order Status: ").append(saleOrder.getOrderStatus()).append("\n");
                 mailBody.append("\n");
-                priceTotal = priceTotal + (lineItem.getPrice() * lineItem.getQty());
+                mailBody.append("Purchase Details").append("\n");
+
+
+                for (LineItems lineItem : lineItemsLst) {
+                    mailBody.append("Product Name: ").append(lineItem.getName()).append(", Quantity: ").append(lineItem.getQty()).append(", Price Per Unit: ").append(lineItem.getPrice()).append(", Amount: ").append(lineItem.getQty() * lineItem.getPrice());
+                    mailBody.append("\n");
+                    priceTotal = priceTotal + (lineItem.getPrice() * lineItem.getQty());
+                }
+                mailBody.append("\n").append("Total Sum: ").append(priceTotal);
+                mailBody.append("\n").append("Payment Type: CASH ON DELIVERY");
+                mailBody.append("\n\n").append("Shipping Address: ").append(profile.getAddress()).append(",").append(profile.getCity()).append(",").append(profile.getState()).append(",").append(profile.getCountry()).append(",").append(profile.getPincode());
+                mailBody.append("\n").append("Contact Number: ").append(profile.getMobile());
+                EmailUtil.INSTANCE.sendMail("Purchase Order Placed!", mailBody.toString(), profile.getEmail(), null, null);
+            } else {
+                request.setAttribute("error", "Order could not be saved to DB!");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
+                dispatcher.forward(request, response);
             }
-            mailBody.append("\n").append("Total Sum: ").append(priceTotal);
-            mailBody.append("\n").append("Payment Type: CASH ON DELIVERY");
-            mailBody.append("\n\n").append("Shipping Address: ").append(profile.getAddress()).append(",").append(profile.getCity()).append(",").append(profile.getState()).append(",").append(profile.getCountry()).append(",").append(profile.getPincode());
-            mailBody.append("\n").append("Contact Number: ").append(profile.getMobile());
-            EmailUtil.INSTANCE.sendMail("Purchase Order Placed!", mailBody.toString(), profile.getEmail(), null, null);
+
 
         }
 
