@@ -75,11 +75,11 @@ CREATE TABLE LINE_ITEMS
 );
 
 INSERT INTO SHOPIFY_USER.PROFILE (UNAME,PWD,VERIFICATION_CODE,ACC_LOCK,"NAME", GENDER, EMAIL, ADDRESS, CITY, "STATE", COUNTRY, PINCODE, MOBILE, STATUS, UROLE,CHANGE_TIME) 
-	VALUES ('admin', 'admin', '',0 ,'Admin', 'M', 'shopify.ind@gmail.com', '', 'Mysore', 'Karnataka', 'India', 560001, 999999999, 'ACTIVE', 'ADMIN',DEFAULT);
+	VALUES ('admin', 'admin', '',0 ,'Admin', 'M', 'shopify.ind@gmail.com', '#10,10th cross,10th Main,MG Road', 'Mysore', 'Karnataka', 'India', 560001, 999999999, 'ACTIVE', 'ADMIN',DEFAULT);
 
 	
 INSERT INTO SHOPIFY_USER.PROFILE (UNAME,PWD,VERIFICATION_CODE,ACC_LOCK,"NAME", GENDER, EMAIL, ADDRESS, CITY, "STATE", COUNTRY, PINCODE, MOBILE, STATUS, CHANGE_TIME,UROLE) 
-	VALUES ('kalyani', 'password123', '',0,'Kalyani', 'F', 'shopify.ind@gmail.com', '', 'Mysore', 'Karnataka', 'India', 560001, 999999999, 'ACTIVE', DEFAULT,'USER');
+	VALUES ('kalyani', 'password123', '',0,'Kalyani', 'F', 'shopify.ind@gmail.com', '#10,10th cross,10th Main,MG Road', 'Mysore', 'Karnataka', 'India', 560001, 999999999, 'ACTIVE', DEFAULT,'USER');
 
 
 INSERT INTO SHOPIFY_USER.PRODUCT (CODE, "NAME", CATEGORY, PRICE, DESCRIPTION, IMAGE, CHANGE_TIME) 

@@ -23,15 +23,15 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "Home", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {
-
+    
     private static final Logger logger = Logger.getLogger(HomeServlet.class.getName());
-
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-
+        
         try {
             String action = request.getParameter("action");
-
+            
             if (action != null) {
                 switch (action) {
                     case "DeleteFromCart":
@@ -65,9 +65,9 @@ public class HomeServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
             dispatcher.forward(request, response);
         }
-
+        
     }
-
+    
     public void editUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
         //unlock
         if (request.getParameter("profileId") != null) {
@@ -81,12 +81,12 @@ public class HomeServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
             dispatcher.forward(request, response);
         }
-
-
+        
+        
     }
-
+    
     public void updateUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
         Long profileId = null;
         if (!request.getParameter("profileId").equals("")) {
             profileId = Long.parseLong(request.getParameter("profileId"));
@@ -103,7 +103,7 @@ public class HomeServlet extends HttpServlet {
         Long pincode = Long.parseLong(request.getParameter("pincode"));
         Long mobile = Long.parseLong(request.getParameter("mobile"));
         String status = "ACTIVE";
-
+        
         Profile profile = new Profile(uname, pwd, null, Boolean.TRUE, name, gender, email, address, city, state, country, pincode, mobile, status, null);
         if (profileId != null) {
             profile.setProfileId(profileId);
@@ -114,18 +114,18 @@ public class HomeServlet extends HttpServlet {
             logger.log(Level.INFO, "Profile update failed : {0}", profile.getName());
         }
         response.sendRedirect("/shopify/home");
-
+        
     }
-
+    
     public void defaultAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<Product> productLst = DaoImpl.INSTANCE.getAllProducts();
         request.setAttribute("productLst", productLst);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/home.jsp");
         dispatcher.forward(request, response);
     }
-
+    
     public void cart(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
         Long productId = Long.parseLong(request.getParameter("productId"));
         Integer productQty = Integer.parseInt(request.getParameter("productQty"));
         logger.log(Level.INFO, "productId: {0},productQty: {1}", new Object[]{productId, productQty});
@@ -133,12 +133,12 @@ public class HomeServlet extends HttpServlet {
         LineItems lineItem = new LineItems();
         lineItem.setProductId(productId);
         lineItem.setQty(productQty);
-
+        
         List<LineItems> lineItemsLst = (List<LineItems>) session.getAttribute("lineItemsLst");
         if (lineItemsLst == null) {
             lineItemsLst = new ArrayList<LineItems>();
         }
-
+        
         Product product = DaoImpl.INSTANCE.getProductById(productId);
         lineItem.setName(product.getCode() + ": " + product.getName());
         lineItem.setPrice(product.getPrice() * productQty);
@@ -148,7 +148,7 @@ public class HomeServlet extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/cart.jsp");
         dispatcher.forward(request, response);
     }
-
+    
     public void checkOut(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession(false);
         List<LineItems> lineItemsLst = (List<LineItems>) session.getAttribute("lineItemsLst");
@@ -157,7 +157,7 @@ public class HomeServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/tool/error.jsp");
             dispatcher.forward(request, response);
         } else {
-
+            
             Long profileId = Long.parseLong(session.getAttribute("uid").toString());
             SaleOrder saleOrder = new SaleOrder();
             saleOrder.setOrderStatus("SHIPPMENT_PENDING_DELIVERY");
@@ -166,30 +166,33 @@ public class HomeServlet extends HttpServlet {
             Profile profile = DaoImpl.INSTANCE.getProfileById(profileId);
             Float priceTotal = 0f;
             StringBuilder mailBody = new StringBuilder();
+            mailBody.append("Order Placed By: ").append(profile.getName()).append("\n");
             mailBody.append("Your order id: ").append(saleOrder.getOrderId()).append("\n");
             mailBody.append("Order Status: ").append(saleOrder.getOrderStatus()).append("\n");
             mailBody.append("\n");
             mailBody.append("Purchase Details").append("\n");
-
-
+            
+            
             for (LineItems lineItem : lineItemsLst) {
-                mailBody.append("Product Name: ").append(lineItem.getName()).append(", Quantity: ").append(lineItem.getQty()).append(", Price: " + lineItem.getPrice());
+                mailBody.append("Product Name: ").append(lineItem.getName()).append(", Quantity: ").append(lineItem.getQty()).append(", Price Per Unit: ").append(lineItem.getPrice()).append(", Amount: ").append(lineItem.getQty() * lineItem.getPrice());
                 mailBody.append("\n");
-                priceTotal= priceTotal + (lineItem.getPrice() * lineItem.getQty());
+                priceTotal = priceTotal + (lineItem.getPrice() * lineItem.getQty());
             }
             mailBody.append("\n").append("Total Sum: ").append(priceTotal);
-
+            mailBody.append("\n").append("Payment Type: CASH ON DELIVERY");
+            mailBody.append("\n\n").append("Shipping Address: ").append(profile.getAddress()).append(",").append(profile.getCity()).append(",").append(profile.getState()).append(",").append(profile.getCountry()).append(",").append(profile.getPincode());
+            mailBody.append("\n").append("Contact Number: ").append(profile.getMobile());
             EmailUtil.INSTANCE.sendMail("Purchase Order Placed!", mailBody.toString(), profile.getEmail(), null, null);
-
+            
         }
-
+        
         session.setAttribute("lineItemsLst", null);
         request.setAttribute("flash_msg", "Checkout Completed!");
         defaultAction(request, response);
     }
-
+    
     public void retrieveImage(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
         InputStream inputStream = null;
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             Long id = Long.parseLong(request.getParameter("id"));
@@ -203,9 +206,9 @@ public class HomeServlet extends HttpServlet {
             if (inputStream != null) {
                 inputStream.close();
             }
-
+            
         }
-
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
