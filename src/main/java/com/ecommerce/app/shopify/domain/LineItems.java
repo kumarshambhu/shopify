@@ -7,7 +7,6 @@ import java.util.Date;
 public class LineItems implements java.io.Serializable {
 
     private long lineItemId;
-    private long itemId;
     private long orderId;
     private long productId;
     private int qty;
@@ -20,7 +19,6 @@ public class LineItems implements java.io.Serializable {
     }
 
     public LineItems(long itemId, long orderId, long productId, int qty, Date changeTime) {
-        this.itemId = itemId;
         this.orderId = orderId;
         this.productId = productId;
         this.qty = qty;
@@ -28,7 +26,7 @@ public class LineItems implements java.io.Serializable {
     }
 
     public LineItems(ResultSet rs) throws SQLException {
-        this.itemId = rs.getLong("LINE_ITEM_ID");
+        this.lineItemId = rs.getLong("LINE_ITEM_ID");
         this.orderId = rs.getLong("ORDER_ID");
         this.productId = rs.getLong("PRODUCT_ID");
         this.qty = rs.getInt("QTY");
@@ -41,14 +39,6 @@ public class LineItems implements java.io.Serializable {
 
     public void setLineItemId(long lineItemId) {
         this.lineItemId = lineItemId;
-    }
-
-    public long getItemId() {
-        return this.itemId;
-    }
-
-    public void setItemId(long itemId) {
-        this.itemId = itemId;
     }
 
     public long getOrderId() {
